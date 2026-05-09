@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BoredGames — Find Something to Play</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Nunito:wght@400;600;700;800&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080b14;
+  --bg2:#0d1120;
+  --card:#111827;
+  --card-hover:#151e30;
+  --border:#1e2d47;
+  --accent:#4fffb0;
+  --accent2:#38bdf8;
+  --hot:#fb923c;
+  --new-col:#a78bfa;
+  --text:#e2e8f0;
+  --muted:#64748b;
+  --muted2:#94a3b8;
+  --font-head:'Russo One',sans-serif;
+  --font-body:'Nunito',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:15px;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(79,255,176,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(79,255,176,0.025) 1px,transparent 1px);
+  background-size:44px 44px;
+  pointer-events:none;z-index:0;
+}
+body::after{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 80% 45% at 50% -10%,rgba(56,189,248,0.07) 0%,transparent 70%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── Header ── */
+.site-header{
+  position:sticky;top:0;z-index:99;
+  background:rgba(8,11,20,0.93);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:0 clamp(1rem,4vw,2.5rem);
+}
+.header-top{
+  display:flex;align-items:center;gap:1.25rem;
+  padding:1.2rem 0 .9rem;flex-wrap:wrap;
+}
+.logo{display:flex;align-items:center;gap:.55rem;text-decoration:none}
+.logo-icon{font-size:2rem;filter:drop-shadow(0 0 14px rgba(79,255,176,.6));animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.logo-text{font-family:var(--font-head);font-size:1.9rem;letter-spacing:1px;line-height:1}
+.logo-text .b{color:var(--accent);text-shadow:0 0 28px rgba(79,255,176,.45)}
+.logo-text .g{color:var(--accent2);text-shadow:0 0 28px rgba(56,189,248,.45)}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:.9rem}
+.game-pill{
+  background:rgba(79,255,176,.09);border:1px solid rgba(79,255,176,.22);
+  color:var(--accent);font-size:.75rem;font-weight:800;letter-spacing:1.2px;
+  padding:.28rem .8rem;border-radius:999px;
+}
+.tagline{color:var(--muted2);font-size:.8rem;font-weight:700;letter-spacing:.4px;white-space:nowrap}
+
+/* Search */
+.search-wrap{position:relative;padding-bottom:.9rem}
+.search-wrap input{
+  width:100%;
+  background:rgba(255,255,255,.035);
+  border:1.5px solid var(--border);
+  color:var(--text);
+  font-family:var(--font-body);font-weight:700;font-size:.95rem;
+  padding:.72rem 1rem .72rem 2.75rem;
+  border-radius:10px;outline:none;
+  transition:border-color .2s,box-shadow .2s,background .2s;
+}
+.search-wrap input:focus{
+  border-color:var(--accent2);
+  background:rgba(56,189,248,.04);
+  box-shadow:0 0 0 4px rgba(56,189,248,.09);
+}
+.search-wrap input::placeholder{color:var(--muted)}
+.s-ico{position:absolute;left:.85rem;top:50%;transform:translateY(-58%);color:var(--muted);font-size:1.05rem;pointer-events:none}
+
+/* Category pills */
+.cat-row{display:flex;gap:.45rem;overflow-x:auto;padding-bottom:.9rem;scrollbar-width:none}
+.cat-row::-webkit-scrollbar{display:none}
+.cat-btn{
+  background:transparent;border:1.5px solid var(--border);color:var(--muted2);
+  font-family:var(--font-body);font-size:.75rem;font-weight:800;letter-spacing:.7px;
+  text-transform:uppercase;padding:.38rem 1rem;border-radius:8px;cursor:pointer;
+  white-space:nowrap;display:flex;align-items:center;gap:.35rem;
+  transition:all .18s;flex-shrink:0;
+}
+.cat-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+.cat-btn.active{background:var(--accent);border-color:var(--accent);color:#000;box-shadow:0 4px 18px rgba(79,255,176,.25)}
+.cnt{background:rgba(0,0,0,.18);border-radius:4px;padding:.02rem .3rem;font-size:.65rem}
+.cat-btn.active .cnt{background:rgba(0,0,0,.22)}
+
+/* Stats */
+.stats-bar{
+  position:relative;z-index:1;
+  max-width:1400px;margin:1.4rem auto .4rem;
+  padding:0 clamp(1rem,4vw,2.5rem);
+  display:flex;align-items:center;gap:.6rem;
+  font-size:.78rem;color:var(--muted);font-weight:700;
+}
+.dot{width:7px;height:7px;background:var(--accent);border-radius:50%;box-shadow:0 0 8px var(--accent);flex-shrink:0;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
+#ticker{color:var(--accent2);transition:opacity .4s}
+
+/* Grid */
+.game-grid{
+  position:relative;z-index:1;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:1rem;
+  max-width:1400px;margin:1rem auto 3rem;
+  padding:0 clamp(1rem,4vw,2.5rem);
+}
+
+/* Card */
+@keyframes cardIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+.game-card{
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:.85rem;
+  background:var(--card);border:1.5px solid var(--border);border-radius:14px;
+  padding:.95rem;text-decoration:none;color:var(--text);
+  position:relative;overflow:hidden;
+  transition:transform .2s,border-color .2s,box-shadow .2s,background .2s;
+  animation:cardIn .38s ease both;
+}
+.game-card::after{
+  content:'';position:absolute;inset:0;border-radius:inherit;
+  background:linear-gradient(130deg,rgba(79,255,176,.05) 0%,transparent 55%);
+  opacity:0;transition:opacity .2s;
+}
+.game-card:hover{
+  transform:translateY(-4px) scale(1.012);
+  border-color:var(--accent);
+  background:var(--card-hover);
+  box-shadow:0 14px 40px rgba(0,0,0,.45),0 0 0 1px rgba(79,255,176,.14),0 0 28px rgba(79,255,176,.06);
+}
+.game-card:hover::after{opacity:1}
+
+.emoji-box{
+  width:50px;height:50px;border-radius:12px;
+  background:rgba(255,255,255,.04);border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.65rem;flex-shrink:0;
+  transition:border-color .2s,transform .2s;
+}
+.game-card:hover .emoji-box{border-color:rgba(79,255,176,.3);transform:scale(1.1) rotate(-3deg)}
+
+.card-body{}
+.card-top{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.22rem}
+.card-name{font-weight:800;font-size:.93rem}
+.badge{font-size:.6rem;font-weight:800;padding:.1rem .42rem;border-radius:5px;letter-spacing:.5px;text-transform:uppercase}
+.b-hot{background:rgba(251,146,60,.14);color:var(--hot);border:1px solid rgba(251,146,60,.28)}
+.b-new{background:rgba(167,139,250,.14);color:var(--new-col);border:1px solid rgba(167,139,250,.28)}
+.card-desc{font-size:.77rem;color:var(--muted2);line-height:1.45;margin-bottom:.32rem}
+.cat-tag{
+  display:inline-block;font-size:.63rem;font-weight:800;letter-spacing:.7px;text-transform:uppercase;
+  color:var(--accent2);background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.15);
+  padding:.08rem .46rem;border-radius:5px;
+}
+
+.arrow{
+  color:var(--accent);font-size:1.4rem;flex-shrink:0;
+  opacity:0;transform:translateX(-8px);
+  transition:opacity .2s,transform .2s;
+}
+.game-card:hover .arrow{opacity:1;transform:translateX(0)}
+
+/* No results */
+.no-results{position:relative;z-index:1;text-align:center;padding:5rem 1rem;display:none}
+.no-results.show{display:block}
+.no-results .nri{font-size:3.5rem;margin-bottom:.8rem}
+.no-results p{color:var(--muted2);font-size:1rem;font-weight:700}
+.no-results small{color:var(--muted);font-size:.82rem}
+
+/* Footer */
+.site-footer{
+  position:relative;z-index:1;
+  border-top:1px solid var(--border);text-align:center;
+  padding:2rem 1rem 2.5rem;color:var(--muted);font-size:.79rem;font-weight:700;
+}
+.site-footer a{color:var(--accent2);text-decoration:none}
+.site-footer a:hover{text-decoration:underline}
+.footer-sub{margin-top:.35rem;color:var(--muted);font-size:.72rem}
+
+::-webkit-scrollbar{width:7px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+@media(max-width:640px){
+  .logo-text{font-size:1.5rem}
+  .tagline{display:none}
+  .game-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-top">
+    <a class="logo" href="#">
+      <span class="logo-icon">🎮</span>
+      <span class="logo-text"><span class="b">BORED</span><span class="g">GAMES</span></span>
+    </a>
+    <div class="header-right">
+      <span class="game-pill" id="totalPill">0 GAMES</span>
+      <span class="tagline">Stop scrolling. Start playing.</span>
+    </div>
+  </div>
+
+  <div class="search-wrap">
+    <span class="s-ico">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search games..." autocomplete="off" spellcheck="false"/>
+  </div>
+
+  <div class="cat-row" id="catRow">
+    <button class="cat-btn active" data-cat="all">🕹️ All <span class="cnt" id="c-all">0</span></button>
+    <button class="cat-btn" data-cat="action">🔫 Action <span class="cnt" id="c-action">0</span></button>
+    <button class="cat-btn" data-cat="puzzle">🧩 Puzzle <span class="cnt" id="c-puzzle">0</span></button>
+    <button class="cat-btn" data-cat="io">🌐 IO Games <span class="cnt" id="c-io">0</span></button>
+    <button class="cat-btn" data-cat="strategy">♟️ Strategy <span class="cnt" id="c-strategy">0</span></button>
+    <button class="cat-btn" data-cat="idle">⏱️ Idle <span class="cnt" id="c-idle">0</span></button>
+    <button class="cat-btn" data-cat="sports">⚽ Sports <span class="cnt" id="c-sports">0</span></button>
+    <button class="cat-btn" data-cat="retro">👾 Retro <span class="cnt" id="c-retro">0</span></button>
+    <button class="cat-btn" data-cat="word">💬 Word <span class="cnt" id="c-word">0</span></button>
+  </div>
+</header>
+
+<div class="stats-bar">
+  <span class="dot"></span>
+  <span id="ticker">Updated regularly — bookmark this page!</span>
+</div>
+
+<main class="game-grid" id="gameGrid"></main>
+
+<div class="no-results" id="noResults">
+  <div class="nri">😵‍💫</div>
+  <p>No games found.</p>
+  <small>Try a different keyword or switch categories!</small>
+</div>
+
+<footer class="site-footer">
+  <p>Made with ❤️ for bored people &nbsp;·&nbsp; <a href="https://github.com" target="_blank">View on GitHub</a></p>
+  <p class="footer-sub">Know a game that's missing? Open a pull request — contributions welcome!</p>
+</footer>
+
+<script>
+// ================================================================
+//  ADD GAMES HERE
+//  cat options: action | puzzle | io | strategy | idle | sports | retro | word
+// ================================================================
+const GAMES = [
+  // ACTION
+  {name:"1v1.LOL",url:"https://1v1.lol",cat:"action",emoji:"🔫",desc:"Build structures and shoot opponents in this fast-paced browser battle game.",hot:true,isNew:false},
+  {name:"Shell Shockers",url:"https://shellshock.io",cat:"action",emoji:"🥚",desc:"Egg-themed first-person shooter. Crack your enemies before they crack you.",hot:true,isNew:false},
+  {name:"Krunker.io",url:"https://krunker.io",cat:"action",emoji:"🎯",desc:"Fast-paced browser FPS with tons of maps, classes, and a huge community.",hot:false,isNew:false},
+  {name:"Venge.io",url:"https://venge.io",cat:"action",emoji:"⚔️",desc:"Gorgeous 3D multiplayer FPS — remarkable graphics for a browser game.",hot:false,isNew:true},
+  {name:"Bullet Force",url:"https://www.crazygames.com/game/bullet-force-multiplayer",cat:"action",emoji:"💥",desc:"Realistic multiplayer shooter with multiple modes and weapons.",hot:false,isNew:false},
+  {name:"Warbrokers.io",url:"https://warbrokers.io",cat:"action",emoji:"🪖",desc:"Battle royale and team modes with vehicles and parachutes.",hot:false,isNew:false},
+  // PUZZLE
+  {name:"Wordle",url:"https://www.nytimes.com/games/wordle/index.html",cat:"puzzle",emoji:"🟩",desc:"Guess the five-letter word in six tries. The world's favourite daily puzzle.",hot:true,isNew:false},
+  {name:"Connections",url:"https://www.nytimes.com/games/connections",cat:"puzzle",emoji:"🔗",desc:"Group 16 words into four secret categories. Harder than it looks.",hot:true,isNew:false},
+  {name:"2048",url:"https://play2048.co",cat:"puzzle",emoji:"🔢",desc:"Slide tiles and combine numbers until you hit 2048. One more move...",hot:false,isNew:false},
+  {name:"Sudoku.com",url:"https://sudoku.com",cat:"puzzle",emoji:"🧩",desc:"Classic Sudoku with four difficulty levels and a clean interface.",hot:false,isNew:false},
+  {name:"Nonograms",url:"https://nonograms.org",cat:"puzzle",emoji:"🖼️",desc:"Paint-by-number grid logic puzzles. Great for killing 20 minutes.",hot:false,isNew:false},
+  {name:"Jigidi",url:"https://www.jigidi.com",cat:"puzzle",emoji:"🧸",desc:"Beautiful online jigsaw puzzles — thousands to choose from, new daily.",hot:false,isNew:false},
+  // IO
+  {name:"Agar.io",url:"https://agar.io",cat:"io",emoji:"🫧",desc:"Eat smaller cells to grow, avoid bigger ones. The original io game.",hot:false,isNew:false},
+  {name:"Slither.io",url:"https://slither.io",cat:"io",emoji:"🐍",desc:"Multiplayer snake on a massive scale. Don't let anyone cut you off.",hot:false,isNew:false},
+  {name:"Surviv.io",url:"https://survivio.com",cat:"io",emoji:"🗺️",desc:"Top-down 2D battle royale. Last player standing wins.",hot:true,isNew:false},
+  {name:"Diep.io",url:"https://diep.io",cat:"io",emoji:"🔵",desc:"Tank shooter where you destroy shapes to level up and unlock builds.",hot:false,isNew:false},
+  {name:"Zombs Royale",url:"https://zombsroyale.io",cat:"io",emoji:"🧟",desc:"Colorful cartoon battle royale with 100 players per match.",hot:false,isNew:false},
+  {name:"Little Big Snake",url:"https://littlebigsnake.com",cat:"io",emoji:"🌿",desc:"Evolve your snake through a beautiful ecosystem. Surprisingly deep.",hot:false,isNew:true},
+  {name:"Territorial.io",url:"https://territorial.io",cat:"io",emoji:"🌍",desc:"Expand your territory across a world map. Simple but dangerously addictive.",hot:true,isNew:false},
+  // STRATEGY
+  {name:"Chess.com",url:"https://www.chess.com/play/online",cat:"strategy",emoji:"♟️",desc:"The classic game of chess — play online against humans or bots.",hot:true,isNew:false},
+  {name:"Lichess",url:"https://lichess.org",cat:"strategy",emoji:"🏰",desc:"Open-source, completely ad-free chess. No subscription needed.",hot:false,isNew:false},
+  {name:"Colonist.io",url:"https://colonist.io",cat:"strategy",emoji:"🌾",desc:"Settlers of Catan in your browser. Build roads, trade resources, win.",hot:true,isNew:false},
+  {name:"Generals.io",url:"https://generals.io",cat:"strategy",emoji:"🗾",desc:"Capture the enemy general's tile before yours falls. Tense and fast.",hot:false,isNew:false},
+  {name:"Risk (BGA)",url:"https://boardgamearena.com/gamepanel?game=risk",cat:"strategy",emoji:"🌐",desc:"World domination on Board Game Arena. Free to play with an account.",hot:false,isNew:false},
+  // IDLE
+  {name:"Cookie Clicker",url:"https://orteil.dashnet.org/cookieclicker/",cat:"idle",emoji:"🍪",desc:"Click cookies. Buy grandmas. Ascend to cookie godhood. The legend.",hot:true,isNew:false},
+  {name:"Kittens Game",url:"https://kittensgame.com/web/",cat:"idle",emoji:"🐱",desc:"A surprisingly deep idle civilization builder starring kittens.",hot:false,isNew:false},
+  {name:"Idle Breakout",url:"https://koalabeast.com/idlebreakout/",cat:"idle",emoji:"🧱",desc:"Breakout meets idle clicker. Upgrade balls, smash bricks forever.",hot:false,isNew:false},
+  {name:"Trimps",url:"https://trimps.github.io",cat:"idle",emoji:"⚡",desc:"Train an army of Trimps, explore zones, and ascend for bonuses.",hot:false,isNew:false},
+  // SPORTS
+  {name:"Penalty Shooters 2",url:"https://www.crazygames.com/game/penalty-shooters-2",cat:"sports",emoji:"🥅",desc:"Step up to the spot. Score penalties and save them. Pure tension.",hot:true,isNew:false},
+  {name:"Basketball Stars",url:"https://www.crazygames.com/game/basketball-stars",cat:"sports",emoji:"🏀",desc:"Slick 1v1 basketball with trick shots and stylish moves.",hot:false,isNew:false},
+  {name:"Head Soccer",url:"https://www.crazygames.com/game/head-soccer",cat:"sports",emoji:"⚽",desc:"Absurd one-on-one soccer with giant heads and power-ups.",hot:false,isNew:false},
+  {name:"Getaway Shootout",url:"https://www.crazygames.com/game/getaway-shootout",cat:"sports",emoji:"🏃",desc:"Race to the getaway vehicle using only jump and shoot. Chaotic fun.",hot:false,isNew:false},
+  // RETRO
+  {name:"Tetris (jstris)",url:"https://jstris.jezevec10.com",cat:"retro",emoji:"🟦",desc:"Fast multiplayer Tetris with worldwide leaderboards. Serious players only.",hot:true,isNew:false},
+  {name:"Pac-Man (Google)",url:"https://www.google.com/logos/2010/pacman10-i.html",cat:"retro",emoji:"👾",desc:"The original dot-munching arcade classic, preserved by Google.",hot:false,isNew:false},
+  {name:"Space Invaders",url:"https://freeinvaders.org",cat:"retro",emoji:"👽",desc:"Defend Earth from pixelated alien invaders. The one that started it all.",hot:false,isNew:false},
+  {name:"Internet Archive Arcade",url:"https://archive.org/details/internetarcade",cat:"retro",emoji:"🕹️",desc:"Hundreds of original arcade ROMs preserved and playable in-browser.",hot:false,isNew:false},
+  {name:"Snake (Google)",url:"https://www.google.com/fbx?fbx=snake_arcade",cat:"retro",emoji:"🐍",desc:"Google's polished take on the timeless snake game.",hot:false,isNew:false},
+  // WORD
+  {name:"Typeracer",url:"https://play.typeracer.com",cat:"word",emoji:"⌨️",desc:"Race other players by typing quotes as fast as possible. Surprisingly tense.",hot:true,isNew:false},
+  {name:"Sporcle",url:"https://www.sporcle.com",cat:"word",emoji:"🧠",desc:"Thousands of trivia quizzes on literally every topic imaginable.",hot:false,isNew:false},
+  {name:"Semantle",url:"https://semantle.com",cat:"word",emoji:"💬",desc:"Guess a secret word by exploring semantic similarity. Truly maddening.",hot:false,isNew:true},
+  {name:"Worldle",url:"https://worldle.teuteuf.fr",cat:"word",emoji:"🌐",desc:"Identify a country from its silhouette. Addictive geography game.",hot:false,isNew:false},
+  {name:"Heardle",url:"https://www.spotify.com/heardle/",cat:"word",emoji:"🎵",desc:"Guess the song from a tiny intro clip. Tests your music knowledge.",hot:false,isNew:false},
+];
+
+(function(){
+  const grid=document.getElementById('gameGrid');
+  const inp=document.getElementById('searchInput');
+  const noRes=document.getElementById('noResults');
+  const tick=document.getElementById('ticker');
+  const totalPill=document.getElementById('totalPill');
+
+  let cat='all', q='';
+
+  const CAT_LABELS={action:'Action',puzzle:'Puzzle',io:'IO Game',strategy:'Strategy',idle:'Idle',sports:'Sports',retro:'Retro',word:'Word / Trivia'};
+
+  // Fill counts
+  ['all','action','puzzle','io','strategy','idle','sports','retro','word'].forEach(c=>{
+    const el=document.getElementById('c-'+c);
+    if(el) el.textContent=c==='all'?GAMES.length:GAMES.filter(g=>g.cat===c).length;
+  });
+  totalPill.textContent=GAMES.length+' GAMES';
+
+  function render(){
+    const qL=q.toLowerCase().trim();
+    const list=GAMES.filter(g=>{
+      return (cat==='all'||g.cat===cat)&&
+        (!qL||g.name.toLowerCase().includes(qL)||g.desc.toLowerCase().includes(qL)||g.cat.includes(qL));
+    });
+    grid.innerHTML='';
+    noRes.classList.toggle('show',list.length===0);
+    list.forEach((g,i)=>{
+      const a=document.createElement('a');
+      a.href=g.url;a.target='_blank';a.rel='noopener noreferrer';
+      a.className='game-card';
+      a.style.animationDelay=Math.min(i*32,380)+'ms';
+      a.innerHTML=`
+        <div class="emoji-box">${g.emoji}</div>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-name">${g.name}</span>
+            ${g.hot?'<span class="badge b-hot">🔥 Hot</span>':''}
+            ${g.isNew?'<span class="badge b-new">✨ New</span>':''}
+          </div>
+          <p class="card-desc">${g.desc}</p>
+          <span class="cat-tag">${CAT_LABELS[g.cat]||g.cat}</span>
+        </div>
+        <span class="arrow">›</span>`;
+      grid.appendChild(a);
+    });
+  }
+
+  document.getElementById('catRow').addEventListener('click',e=>{
+    const b=e.target.closest('.cat-btn');
+    if(!b)return;
+    document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    cat=b.dataset.cat;
+    render();
+  });
+
+  inp.addEventListener('input',e=>{q=e.target.value;render();});
+
+  render();
+
+  const msgs=[
+    GAMES.length+' free browser games, no install needed.',
+    'Updated regularly — bookmark this page!',
+    'No login. No download. Just play.',
+    'Know a good game? Open a pull request!',
+    'Works on Chrome, Firefox, Safari & Edge.',
+  ];
+  let ti=0;
+  setInterval(()=>{
+    tick.style.opacity='0';
+    setTimeout(()=>{ti=(ti+1)%msgs.length;tick.textContent=msgs[ti];tick.style.opacity='1';},400);
+  },4000);
+})();
+</script>
+</body>
+</html>
